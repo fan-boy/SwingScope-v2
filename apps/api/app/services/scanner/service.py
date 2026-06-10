@@ -61,6 +61,7 @@ async def run_scan(
     config: ScannerConfig = DEFAULT_CONFIG,
     universe: list[str] = DEFAULT_UNIVERSE,
     mock_mode: bool = False,
+    send_alert: bool = True,
 ) -> ScanRun:
     """
     Execute a full scan run. Creates and persists a ScanRun with candidates.
@@ -151,6 +152,17 @@ async def run_scan(
             "Scan %s complete: %d scanned, %d candidates in %dms",
             scan_run.id, tickers_scanned, len(candidates), scan_run.duration_ms,
         )
+
+        # Fire alert (non-blocking — failures don't fail the scan)
+        if send_alert:
+            from app.core.config import settings as _settings
+            if _settings.alert_email_enabled and _settings.alert_email_to:
+                try:
+                    from app.services.alerts.service import send_scan_summary
+                    await send_scan_summary(scan_run.id, db)
+                except Exception as alert_err:
+                    logger.warning("Alert failed (scan still succeeded): %s", alert_err)
+
         return scan_run
 
     except Exception as e:
