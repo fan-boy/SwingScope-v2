@@ -1,0 +1,9 @@
+{
+  "name": "swingscope",
+  "private": true,
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "cd apps/api && uvicorn app.main:app --reload",
+    "build": "pnpm --filter web build"
+  }
+}
