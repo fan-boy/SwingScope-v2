@@ -1,193 +1,170 @@
-import { TrendingUp, ShieldCheck, Clock, Radar, ArrowUpRight } from "lucide-react";
+import { Suspense } from "react";
+import { TrendingUp, ShieldCheck, Clock, Radar } from "lucide-react";
 import { MetricCard } from "@/components/shared/metric-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CandidatesTable, CandidatesTableSkeleton } from "@/components/dashboard/candidates-table";
+import { api, ScanRunResponse } from "@/lib/api";
 
-// Placeholder data — replace with real DB queries
-const CANDIDATES = [
-  { symbol: "NVDA", score: 82, confidence: "HIGH", entry: 875, stop: 848, target: 929, regime: "BULLISH" },
-  { symbol: "AAPL", score: 78, confidence: "HIGH", entry: 192.5, stop: 187.2, target: 203.1, regime: "BULLISH" },
-  { symbol: "MSFT", score: 71, confidence: "MEDIUM", entry: 422.3, stop: 411, target: 444.9, regime: "BULLISH" },
-  { symbol: "V", score: 65, confidence: "MEDIUM", entry: 278, stop: 270.5, target: 293, regime: "NEUTRAL" },
-];
+// ── Helpers ──────────────────────────────────────────────────────────────
 
-const PENDING = [
-  { symbol: "AMD", score: 68, note: "Awaiting volume confirmation" },
-  { symbol: "META", score: 61, note: "Earnings in 4 days — watch risk" },
-];
+function regimeBadge(regime: string | null) {
+  if (!regime) return null;
+  const styles: Record<string, string> = {
+    BULLISH:  "border-green-500/30 text-green-400 bg-green-500/10",
+    NEUTRAL:  "border-yellow-500/30 text-yellow-400 bg-yellow-500/10",
+    RISK_OFF: "border-red-500/30 text-red-400 bg-red-500/10",
+  };
+  const icons: Record<string, string> = { BULLISH: "🟢", NEUTRAL: "🟡", RISK_OFF: "🔴" };
+  return (
+    <Badge variant="outline" className={styles[regime] ?? ""}>
+      {icons[regime] ?? ""} {regime}
+    </Badge>
+  );
+}
 
-const REGIME = { label: "Bullish", color: "text-green-400", border: "border-green-500/20 bg-green-500/5", detail: "SPY + QQQ both above 20 EMA" };
+function formatDuration(ms: number | null) {
+  if (!ms) return "—";
+  return ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
+}
 
-const confidenceColor: Record<string, string> = {
-  HIGH: "border-green-500/30 text-green-400 bg-green-500/10",
-  MEDIUM: "border-yellow-500/30 text-yellow-400 bg-yellow-500/10",
-  LOW: "border-red-500/30 text-red-400 bg-red-500/10",
-};
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
 
-export default function DashboardPage() {
+// ── Server data fetch ─────────────────────────────────────────────────────
+
+async function getLatestScan(): Promise<ScanRunResponse | null> {
+  try {
+    return await api.scans.latest();
+  } catch {
+    return null;
+  }
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────
+
+export default async function DashboardPage() {
+  const scan = await getLatestScan();
+  const candidates = scan?.candidates ?? [];
+
   return (
     <div className="space-y-6 max-w-6xl">
-
-      {/* Page title */}
-      <div>
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-        </p>
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long", month: "long", day: "numeric",
+            })}
+          </p>
+        </div>
+        {scan?.is_mocked && (
+          <Badge variant="outline" className="border-yellow-500/30 text-yellow-400 text-xs">
+            Mock data
+          </Badge>
+        )}
       </div>
 
-      {/* Metric row */}
+      {/* Metric cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <MetricCard
           title="Top Candidates"
-          value={CANDIDATES.length}
-          sub="Scored above threshold"
+          value={scan ? candidates.length : undefined}
+          sub={scan ? `${scan.tickers_scanned} tickers scanned` : "No scan yet"}
           icon={TrendingUp}
-          trend="up"
+          trend={candidates.length > 0 ? "up" : "neutral"}
+          loading={false}
         />
+        <Card>
+          <div className="flex flex-col p-6 pb-2 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Market Regime
+              </p>
+              <Radar className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+          <CardContent className="pt-0">
+            {scan?.market_regime
+              ? regimeBadge(scan.market_regime)
+              : <p className="text-2xl font-bold">—</p>
+            }
+            {scan?.market_regime && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {scan.market_regime === "BULLISH"
+                  ? "SPY & QQQ above MA20"
+                  : scan.market_regime === "NEUTRAL"
+                  ? "Mixed signals"
+                  : "Risk-off environment"
+                }
+              </p>
+            )}
+          </CardContent>
+        </Card>
         <MetricCard
-          title="Market Regime"
-          value={REGIME.label}
-          sub={REGIME.detail}
-          icon={Radar}
-          trend="up"
-        />
-        <MetricCard
-          title="Pending Approvals"
-          value={PENDING.length}
-          sub="Needs review"
+          title="Pending Review"
+          value={candidates.filter(c => c.status === "NEW").length || (scan ? 0 : undefined)}
+          sub="Awaiting your review"
           icon={ShieldCheck}
           trend="neutral"
+          loading={false}
         />
         <MetricCard
           title="Last Scan"
-          value="—"
-          sub="No scan run today"
+          value={scan ? formatTime(scan.created_at) : undefined}
+          sub={scan ? `Took ${formatDuration(scan.duration_ms)}` : "Never run"}
           icon={Clock}
           trend="neutral"
+          loading={false}
         />
       </div>
 
-      {/* Main content */}
-      <Tabs defaultValue="candidates">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="candidates">Top Candidates</TabsTrigger>
-          <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
-          <TabsTrigger value="scans">Recent Scans</TabsTrigger>
-        </TabsList>
-
-        {/* Tab: Top Candidates */}
-        <TabsContent value="candidates">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium">Today's Candidates</CardTitle>
-                <Badge variant="outline" className={REGIME.border + " " + REGIME.color + " border text-xs"}>
-                  🟢 {REGIME.label}
-                </Badge>
-              </div>
-            </CardHeader>
-            <Separator />
-            <CardContent className="p-0">
-              {CANDIDATES.length === 0 ? (
-                <EmptyState
-                  icon={TrendingUp}
-                  title="No candidates yet"
-                  description="Run a scan to generate today's trade ideas."
-                />
-              ) : (
-                <div className="divide-y divide-border">
-                  {CANDIDATES.map((c) => (
-                    <div key={c.symbol} className="flex items-center justify-between px-6 py-4 hover:bg-accent/30 transition-colors group cursor-pointer">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
-                          {c.symbol.slice(0, 2)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-sm">{c.symbol}</span>
-                            <Badge variant="outline" className={`text-[10px] h-4 px-1.5 ${confidenceColor[c.confidence]}`}>
-                              {c.confidence}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Entry ${c.entry} · Stop ${c.stop} · Target ${c.target}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-xs text-muted-foreground">Score</p>
-                          <p className="text-sm font-bold text-green-400">{c.score}</p>
-                        </div>
-                        <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
+      {/* Candidates table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium">
+              Top Candidates
+              {candidates.length > 0 && (
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {candidates.length} ranked
+                </span>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </CardTitle>
+            {scan && regimeBadge(scan.market_regime)}
+          </div>
+        </CardHeader>
+        <Separator />
+        <CardContent className="p-0">
+          {!scan ? (
+            <EmptyState
+              icon={Clock}
+              title="No scan data"
+              description="Run a scan from the API to generate candidates."
+            />
+          ) : candidates.length === 0 ? (
+            <EmptyState
+              icon={TrendingUp}
+              title="No candidates found"
+              description="No stocks passed the filter criteria in the last scan."
+            />
+          ) : (
+            <CandidatesTable candidates={candidates} />
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Tab: Pending Approvals */}
-        <TabsContent value="pending">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            </CardHeader>
-            <Separator />
-            <CardContent className="p-0">
-              {PENDING.length === 0 ? (
-                <EmptyState
-                  icon={ShieldCheck}
-                  title="Nothing to review"
-                  description="All candidates have been actioned."
-                />
-              ) : (
-                <div className="divide-y divide-border">
-                  {PENDING.map((p) => (
-                    <div key={p.symbol} className="flex items-center justify-between px-6 py-4 hover:bg-accent/30 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-xs font-bold">
-                          {p.symbol.slice(0, 2)}
-                        </div>
-                        <div>
-                          <span className="font-semibold text-sm">{p.symbol}</span>
-                          <p className="text-xs text-muted-foreground mt-0.5">{p.note}</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-yellow-400">{p.score}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab: Recent Scans */}
-        <TabsContent value="scans">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Recent Scans</CardTitle>
-            </CardHeader>
-            <Separator />
-            <CardContent>
-              <EmptyState
-                icon={Clock}
-                title="No scans yet"
-                description="Scans run automatically after market close or can be triggered manually."
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
+      {scan && (
+        <p className="text-xs text-muted-foreground">
+          Last updated {new Date(scan.created_at).toLocaleString()} ·
+          Scan ID {scan.id.slice(0, 8)}…
+        </p>
+      )}
     </div>
   );
 }
