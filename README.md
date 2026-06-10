@@ -70,6 +70,41 @@ pnpm dev:api
 | `/watchlist` | Tracked tickers |
 | `/settings` | User preferences |
 
+## Database ERD
+
+```
+users
+ ├─── watchlists ──── watchlist_items
+ ├─── trade_plans ─── trade_orders ─── positions
+ └─── app_settings
+
+scan_runs ──── scan_candidates ──── trade_plans
+                                         │
+                                    trade_orders
+                                         │
+                                      positions
+
+execution_logs  (append-only, references any entity by entity_type + entity_id)
+```
+
+### Key relationships
+| Table | Relates to | Via |
+|-------|-----------|-----|
+| `watchlists` | `users` | `user_id` |
+| `watchlist_items` | `watchlists` | `watchlist_id` |
+| `scan_candidates` | `scan_runs` | `scan_run_id` |
+| `trade_plans` | `users` + `scan_candidates` | `user_id`, `candidate_id` |
+| `trade_orders` | `trade_plans` + `positions` | `plan_id`, `position_id` |
+| `app_settings` | `users` | `user_id` (1-to-1) |
+| `execution_logs` | any | `entity_type` + `entity_id` (polymorphic) |
+
+### Query optimisations
+- `scan_candidates` indexed on `(symbol, run_date)` — fast latest-score lookup
+- `scan_candidates` indexed on `score DESC` — fast top-N queries
+- `trade_orders` indexed on `status` — fast pending/filled filter
+- `execution_logs` indexed on `created_at` — fast recent-events query
+- `positions` indexed on `(symbol, status)` — fast open-position lookup
+
 ## Tech Stack
 
 | Layer | Tech |
