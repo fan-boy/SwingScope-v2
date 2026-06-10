@@ -18,6 +18,26 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  watchlists: {
+    list: () => apiFetch<WatchlistResponse[]>("/api/watchlists/"),
+    get: (id: string) => apiFetch<WatchlistResponse>(`/api/watchlists/${id}`),
+    addItem: (id: string, body: { symbol: string; notes?: string; priority?: boolean }) =>
+      apiFetch<WatchlistItemResponse>(`/api/watchlists/${id}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        next: { revalidate: 0 },
+      }),
+    removeItem: (id: string, itemId: string) =>
+      fetch(`${API_BASE}/api/watchlists/${id}/items/${itemId}`, { method: "DELETE" }),
+    updateItem: (id: string, itemId: string, body: { notes?: string; priority?: boolean }) =>
+      apiFetch<WatchlistItemResponse>(`/api/watchlists/${id}/items/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        next: { revalidate: 0 },
+      }),
+  },
   scans: {
     latest: () => apiFetch<ScanRunResponse>("/api/scans/latest"),
     get: (id: string) => apiFetch<ScanRunResponse>(`/api/scans/${id}`),
@@ -61,6 +81,26 @@ export interface ScanRunResponse {
   is_mocked: boolean;
   created_at: string;
   candidates: CandidateResponse[];
+}
+
+// ── Watchlist types ───────────────────────────────────────────────────────
+
+export interface WatchlistItemResponse {
+  id: string;
+  symbol: string;
+  notes: string | null;
+  priority: boolean;
+  scan_score: number | null;
+  scan_confidence: "HIGH" | "MEDIUM" | "LOW" | null;
+  scan_status: string | null;
+}
+
+export interface WatchlistResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  is_default: boolean;
+  items: WatchlistItemResponse[];
 }
 
 export interface RunScanRequest {

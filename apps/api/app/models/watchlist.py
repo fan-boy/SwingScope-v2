@@ -27,5 +27,6 @@ class WatchlistItem(Base, TimestampMixin):
     symbol: Mapped[str] = mapped_column(String(10), nullable=False, index=True)
     notes: Mapped[str | None] = mapped_column(String(500), nullable=True)
     alert_price: Mapped[float | None] = mapped_column(nullable=True)
+    priority: Mapped[bool] = mapped_column(default=False, nullable=False, server_default="false")
 
     watchlist: Mapped["Watchlist"] = relationship(back_populates="items")
