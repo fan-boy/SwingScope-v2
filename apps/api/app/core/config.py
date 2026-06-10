@@ -39,5 +39,15 @@ class Settings(BaseSettings):
     scheduler_enabled: bool = False   # opt-in
     scan_cron_schedule: str = "30 23 * * 1-5"   # 11:30 PM UTC Mon-Fri
 
+    # ── Execution gateway — ALL disabled by default ──────────────────────
+    # WARNING: set EXECUTION_ENABLED=true + EXECUTION_MODE=EXECUTE
+    # ONLY when ready for live trading with real money.
+    # READ_ONLY mode validates and simulates — safe to enable at any time.
+    execution_enabled: bool = False       # global kill switch — must be true to allow any execution
+    execution_mode: str = "READ_ONLY"     # READ_ONLY | EXECUTE
+    robinhood_api_key: str = ""
+    robinhood_account_id: str = ""
+    internal_api_key: str = ""            # shared secret for /internal/* routes
+
 
 settings = Settings()

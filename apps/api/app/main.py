@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import health, scans, watchlists, alerts as alerts_router
+from app.api.routes import health, scans, watchlists, alerts as alerts_router, execution as execution_router
 from app.scheduler import start_scheduler, stop_scheduler
 
 
@@ -27,3 +27,4 @@ app.include_router(health.router, prefix="/api")
 app.include_router(scans.router, prefix="/api")
 app.include_router(watchlists.router, prefix="/api")
 app.include_router(alerts_router.router, prefix="/api")
+app.include_router(execution_router.router, prefix="/api")  # include_in_schema=False on router
