@@ -27,4 +27,13 @@ class AppSettings(Base, TimestampMixin):
     # Arbitrary key-value overrides
     extra: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
+    # ─── Risk Controls ───────────────────────────────────────
+    kill_switch_active: Mapped[bool] = mapped_column(default=False, nullable=False)
+    max_risk_per_trade_pct: Mapped[float] = mapped_column(default=2.0, nullable=False)
+    max_daily_loss_pct: Mapped[float] = mapped_column(default=5.0, nullable=False)
+    max_concurrent_positions: Mapped[int] = mapped_column(default=5, nullable=False)
+    max_new_positions_per_day: Mapped[int] = mapped_column(default=3, nullable=False)
+    block_trades_near_earnings: Mapped[bool] = mapped_column(default=True, nullable=False)
+    account_size_usd: Mapped[float] = mapped_column(default=100_000.0, nullable=False)
+
     user: Mapped["User"] = relationship(back_populates="app_settings")

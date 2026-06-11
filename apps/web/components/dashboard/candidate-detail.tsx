@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { StockChart } from "@/components/dashboard/stock-chart";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 
 interface Props {
   candidate: CandidateResponse | null;
@@ -36,7 +38,7 @@ export function CandidateDetail({ candidate: c, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center text-sm font-bold">
@@ -108,6 +110,11 @@ export function CandidateDetail({ candidate: c, open, onClose }: Props) {
             </p>
           </div>
         )}
+
+        {/* Chart */}
+        <ErrorBoundary>
+          <StockChart symbol={c.symbol} ideaEntry={c.entry} ideaStop={c.stop} />
+        </ErrorBoundary>
 
         <p className="text-[11px] text-muted-foreground border-t border-border pt-3 mt-1">
           ⚠️ For informational purposes only. Not financial advice.

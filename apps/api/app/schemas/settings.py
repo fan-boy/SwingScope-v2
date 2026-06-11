@@ -14,6 +14,14 @@ class AppSettingsRead(APIModel):
     telegram_chat_id: str | None
     extra: dict | None
     updated_at: datetime
+    # ─── Risk Controls ───────────────────────────────────────
+    kill_switch_active: bool
+    max_risk_per_trade_pct: float
+    max_daily_loss_pct: float
+    max_concurrent_positions: int
+    max_new_positions_per_day: int
+    block_trades_near_earnings: bool
+    account_size_usd: float
 
 
 class AppSettingsUpdate(APIModel):
@@ -25,3 +33,11 @@ class AppSettingsUpdate(APIModel):
     notify_on_fill: bool | None = None
     telegram_chat_id: str | None = None
     extra: dict | None = None
+    # ─── Risk Controls ───────────────────────────────────────
+    kill_switch_active: bool | None = None
+    max_risk_per_trade_pct: float | None = None
+    max_daily_loss_pct: float | None = None
+    max_concurrent_positions: int | None = None
+    max_new_positions_per_day: int | None = None
+    block_trades_near_earnings: bool | None = None
+    account_size_usd: float | None = None

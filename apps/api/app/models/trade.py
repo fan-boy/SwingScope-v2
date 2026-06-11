@@ -28,6 +28,7 @@ class TradePlan(Base, TimestampMixin):
     target2: Mapped[float | None] = mapped_column(nullable=True)
     quantity: Mapped[float | None] = mapped_column(nullable=True)
     rr_ratio: Mapped[float | None] = mapped_column(nullable=True)
+    risk_amount: Mapped[float | None] = mapped_column(nullable=True)
 
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(nullable=True)
