@@ -20,9 +20,14 @@ import app.models.log        # noqa: F401
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create all tables if they don't exist (safe to run on every startup)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        import logging
+        logging.getLogger(__name__).info("Database tables ready")
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"DB init failed (continuing anyway): {e}")
     start_scheduler()
     yield
     stop_scheduler()
