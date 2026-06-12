@@ -1,8 +1,15 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
 
+# Convert URL to psycopg3 format if needed
+_db_url = settings.database_url
+if _db_url.startswith("postgresql+asyncpg://"):
+    _db_url = _db_url.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
+elif _db_url.startswith("postgresql://"):
+    _db_url = _db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+
 engine = create_async_engine(
-    settings.database_url,
+    _db_url,
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,
