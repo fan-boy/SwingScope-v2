@@ -13,13 +13,13 @@ class ScannerConfig(BaseModel):
         10_000_000.0, description="Minimum average daily dollar volume (20-day)"
     )
     min_relative_volume: float = Field(
-        1.0, description="Minimum relative volume (today vs 20-day avg)"
+        0.5, description="Minimum relative volume (today vs 20-day avg)"
     )
 
     # ── Moving average rules ───────────────────────────────────────
     require_above_ma20: bool = Field(True, description="Price must be above 20-day MA")
-    require_above_ma50: bool = Field(True, description="Price must be above 50-day MA")
-    require_ma20_above_ma50: bool = Field(True, description="MA20 > MA50 (uptrend)")
+    require_above_ma50: bool = Field(False, description="Price must be above 50-day MA")
+    require_ma20_above_ma50: bool = Field(False, description="MA20 > MA50 (uptrend)")
     require_ma50_above_ma200: bool = Field(False, description="MA50 > MA200 (optional longer trend)")
     bars_needed: int = Field(210, description="Bars to fetch for indicator calculation")
 
@@ -35,7 +35,7 @@ class ScannerConfig(BaseModel):
     weight_breakout: float = Field(30.0, description="Breakout proximity weight")
 
     # ── Output filters ─────────────────────────────────────────────
-    min_final_score: float = Field(50.0, description="Minimum score to include in results")
+    min_final_score: float = Field(30.0, description="Minimum score to include in results")
     max_candidates: int = Field(20, description="Maximum candidates to return")
 
     class Config:
