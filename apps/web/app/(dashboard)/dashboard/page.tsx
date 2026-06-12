@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CandidatesTable, CandidatesTableSkeleton } from "@/components/dashboard/candidates-table";
+import { TriggerScanButton } from "@/components/dashboard/trigger-scan-button";
 import { api, ScanRunResponse } from "@/lib/api";
 
 // ── Helpers ──────────────────────────────────────────────────────────────
@@ -63,11 +64,14 @@ export default async function DashboardPage() {
             })}
           </p>
         </div>
-        {scan?.is_mocked && (
-          <Badge variant="outline" className="border-yellow-500/30 text-yellow-400 text-xs">
-            Mock data
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {scan?.is_mocked && (
+            <Badge variant="outline" className="border-yellow-500/30 text-yellow-400 text-xs">
+              Mock data
+            </Badge>
+          )}
+          <TriggerScanButton />
+        </div>
       </div>
 
       {/* Metric cards */}
