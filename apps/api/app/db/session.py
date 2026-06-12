@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.core.config import settings
 
-# Convert URL to psycopg3 format if needed
+# Normalize to psycopg3 async driver (works with Railway, Supabase, any Postgres)
 _db_url = settings.database_url
-if _db_url.startswith("postgresql+asyncpg://"):
-    _db_url = _db_url.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
-elif _db_url.startswith("postgresql://"):
-    _db_url = _db_url.replace("postgresql://", "postgresql+psycopg://", 1)
+for prefix in ("postgresql+asyncpg://", "postgresql+psycopg2://", "postgresql://", "postgres://"):
+    if _db_url.startswith(prefix):
+        _db_url = "postgresql+psycopg://" + _db_url[len(prefix):]
+        break
 
 engine = create_async_engine(
     _db_url,
