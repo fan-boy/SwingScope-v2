@@ -2,9 +2,7 @@ import { type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
-if (!process.env.AUTH_EMAIL) throw new Error("AUTH_EMAIL env var is required");
-if (!process.env.AUTH_PASSWORD_HASH) throw new Error("AUTH_PASSWORD_HASH env var is required");
-if (!process.env.NEXTAUTH_SECRET) throw new Error("NEXTAUTH_SECRET env var is required");
+// Env vars validated at runtime, not build time
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
