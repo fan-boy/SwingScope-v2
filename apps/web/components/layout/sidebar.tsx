@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Star, Settings, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Star, Settings, TrendingUp, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/watchlist", label: "Watchlist", icon: Star },
+  { href: "/scoring", label: "Scoring", icon: FlaskConical },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
