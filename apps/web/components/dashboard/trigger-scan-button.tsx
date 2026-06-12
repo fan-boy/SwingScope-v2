@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { getScannerConfig } from "@/components/settings/scanner-filters-form";
 
 export function TriggerScanButton() {
   const [loading, setLoading] = useState(false);
@@ -13,12 +14,18 @@ export function TriggerScanButton() {
   async function handleScan() {
     setLoading(true);
     try {
+      const config = getScannerConfig();
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/scans/run`,
-        { method: "POST" }
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ config }),
+        }
       );
       if (!res.ok) throw new Error("Scan failed");
-      toast.success("Scan complete — refreshing data…");
+      const data = await res.json();
+      toast.success(`Scan complete — ${data.candidates_found ?? 0} candidates found`);
       router.refresh();
     } catch {
       toast.error("Failed to run scan");

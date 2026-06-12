@@ -2,6 +2,7 @@ import { Separator } from "@/components/ui/separator";
 import { AlertSettingsForm } from "@/components/settings/alert-settings-form";
 import { AlertHistory } from "@/components/settings/alert-history";
 import { RiskControlsForm } from "@/components/settings/risk-controls-form";
+import { ScannerFiltersForm } from "@/components/settings/scanner-filters-form";
 import { api } from "@/lib/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -54,6 +55,12 @@ export default async function SettingsPage() {
 
       <section className="space-y-4">
         <RiskControlsForm initialSettings={riskSettings} />
+      </section>
+
+      <Separator />
+
+      <section className="space-y-4">
+        <ScannerFiltersForm />
       </section>
 
       <Separator />
