@@ -44,14 +44,16 @@ class AlpacaAdapter(MarketDataProvider):
         end: date | None = None,
     ) -> list[OHLCVBar]:
         tf = _TIMEFRAME_MAP.get(timeframe, "1Day")
+        # Always set start date to ensure we get enough history for indicators
+        from datetime import timedelta
+        default_start = date.today() - timedelta(days=limit * 2)
         params: dict = {
             "timeframe": tf,
             "limit": limit,
             "adjustment": "split",
             "feed": "iex",
+            "start": (start or default_start).isoformat(),
         }
-        if start:
-            params["start"] = start.isoformat()
         if end:
             params["end"] = end.isoformat()
 
@@ -88,12 +90,15 @@ class AlpacaAdapter(MarketDataProvider):
         limit: int = 60,
     ) -> dict[str, list[OHLCVBar]]:
         """Batch endpoint — fetch bars for multiple symbols in one call."""
+        from datetime import timedelta
+        default_start = date.today() - timedelta(days=limit * 2)
         params = {
             "symbols": ",".join(symbols),
             "timeframe": _TIMEFRAME_MAP.get(timeframe, "1Day"),
             "limit": limit,
             "adjustment": "split",
             "feed": "iex",
+            "start": default_start.isoformat(),
         }
         try:
             data = await _request(
