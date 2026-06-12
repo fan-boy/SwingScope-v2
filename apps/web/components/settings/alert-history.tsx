@@ -50,9 +50,9 @@ export function AlertHistory({ logs }: { logs: LogEntry[] }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">{eventLabel(log.event)}</span>
-                {log.meta?.candidates && (
+                {log.meta?.candidates != null && (
                   <span className="text-xs text-muted-foreground">
-                    {String(log.meta.candidates)} candidates
+                    {String(log.meta.candidates as string | number)} candidates
                   </span>
                 )}
               </div>
