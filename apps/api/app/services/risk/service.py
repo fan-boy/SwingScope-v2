@@ -11,7 +11,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.settings import AppSettings
-from app.models.trade import TradePlan, TradePlanStatus
+from app.models.trade import TradePlan
 
 logger = logging.getLogger(__name__)
 
