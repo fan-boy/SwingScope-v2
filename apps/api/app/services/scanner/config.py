@@ -35,7 +35,7 @@ class ScannerConfig(BaseModel):
     weight_breakout: float = Field(30.0, description="Breakout proximity weight")
 
     # ── Output filters ─────────────────────────────────────────────
-    min_final_score: float = Field(30.0, description="Minimum score to include in results")
+    min_final_score: float = Field(20.0, description="Minimum score to include in results")
     max_candidates: int = Field(20, description="Maximum candidates to return")
 
     class Config:

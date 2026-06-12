@@ -55,13 +55,11 @@ def score_trend(ind: IndicatorSet, cfg: ScannerConfig) -> float:
 def score_volume(ind: IndicatorSet, cfg: ScannerConfig) -> float:
     """
     Score 0-100 based on relative volume.
-    1.0x = 0 points, 2.0x = 50, 3.0x+ = 100.
+    0.5x = 25, 1.0x = 50, 2.0x = 75, 3.0x+ = 100.
     """
     rv = ind.relative_volume
-    if rv <= 1.0:
-        return 0.0
-    # linear interpolation 1x → 0, 3x+ → 100
-    raw = (rv - 1.0) / 2.0 * 100.0
+    # linear: 0x → 0, 2x → 100
+    raw = (rv / 2.0) * 100.0
     return _clamp(raw)
 
 
