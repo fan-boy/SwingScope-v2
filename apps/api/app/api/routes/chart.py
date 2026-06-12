@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.services.data_providers.alpaca import AlpacaAdapter
-from app.services.data_providers.mock import MockDataProvider
+from app.services.data_providers.mock import MockMarketDataProvider
 from app.services.scanner.indicators import compute_indicators
 from app.core.config import settings
 
@@ -77,7 +77,7 @@ async def get_chart(symbol: str) -> ChartResponse:
     symbol = symbol.upper()
     try:
         if settings.mock_mode or not settings.alpaca_api_key:
-            provider = MockDataProvider()
+            provider = MockMarketDataProvider()
         else:
             provider = AlpacaAdapter(settings.alpaca_api_key, settings.alpaca_api_secret)
 
