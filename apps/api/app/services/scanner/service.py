@@ -19,13 +19,32 @@ from app.services.scanner.scorer import score_candidate
 
 logger = logging.getLogger(__name__)
 
-# Default universe — extend as needed
+# Default universe — S&P 500 top 150 by market cap
 DEFAULT_UNIVERSE = [
-    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","TSLA","V","JPM","JNJ",
-    "UNH","XOM","WMT","MA","PG","HD","CVX","MRK","LLY","ABBV",
-    "PEP","KO","BAC","AVGO","COST","TMO","ACN","MCD","NKE","NFLX",
-    "ADBE","CRM","AMD","TXN","HON","INTC","QCOM","UNP","LIN","AMGN",
-    "SBUX","GE","GS","AXP","BKNG","ISRG","CAT","DE","SPGI","MMM",
+    # Mega-cap tech
+    "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","TSLA","AVGO","ORCL",
+    "ADBE","CRM","AMD","INTC","QCOM","TXN","AMAT","LRCX","KLAC","MRVL",
+    "PANW","SNPS","CDNS","FTNT","ANSS","NFLX","UBER","ABNB","SHOP","SQ",
+    # Financials
+    "JPM","BAC","WFC","GS","MS","BLK","AXP","V","MA","COF",
+    "SCHW","USB","PNC","TFC","FITB","C","BK","STT","SIVB","DFS",
+    # Healthcare
+    "JNJ","UNH","LLY","ABBV","MRK","PFE","TMO","ABT","DHR","BMY",
+    "AMGN","GILD","REGN","VRTX","ISRG","HCA","CI","CVS","ELV","HUM",
+    # Consumer
+    "AMZN","WMT","COST","TGT","HD","LOW","MCD","SBUX","NKE","CMG",
+    "YUM","DG","DLTR","BKNG","MAR","HLT","ABNB","LVS","MGM","WYNN",
+    # Energy
+    "XOM","CVX","COP","EOG","SLB","MPC","PSX","VLO","OXY","PXD",
+    # Industrials
+    "GE","HON","CAT","DE","UNP","CSX","NSC","RTX","LMT","NOC",
+    "BA","UPS","FDX","EMR","ETN","PH","ROK","GD","TDG","AXON",
+    # Communication
+    "GOOGL","META","NFLX","DIS","CHTR","T","VZ","TMUS","FOXA","EA",
+    # Materials & Utilities
+    "LIN","APD","ECL","NEM","FCX","NUE","VMC","MLM","AWK","NEE",
+    # REITs & misc
+    "PLD","AMT","CCI","EQIX","PSA","O","SPG","WELL","AVB","EQR",
 ]
 
 
