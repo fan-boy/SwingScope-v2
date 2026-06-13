@@ -35,24 +35,18 @@ async def _fetch_bars_batch(
     limit: int,
     batch_size: int = 10,
 ) -> dict[str, list]:
-    """Fetch bars for all symbols in batches to avoid rate limits."""
+    """Fetch bars for all symbols in concurrent batches."""
     results: dict[str, list] = {}
     for i in range(0, len(symbols), batch_size):
         batch = symbols[i : i + batch_size]
-        if hasattr(provider, "get_multi_bars"):
-            # Alpaca supports batch endpoint
-            batch_data = await provider.get_multi_bars(batch, timeframe="1d", limit=limit)
-            results.update(batch_data)
-        else:
-            # Sequential fallback
-            tasks = [provider.get_bars(s, timeframe="1d", limit=limit) for s in batch]
-            fetched = await asyncio.gather(*tasks, return_exceptions=True)
-            for sym, data in zip(batch, fetched):
-                if isinstance(data, Exception):
-                    logger.warning("Failed to fetch bars for %s: %s", sym, data)
-                else:
-                    results[sym] = data
-        await asyncio.sleep(0.2)  # polite delay between batches
+        tasks = [provider.get_bars(s, timeframe="1d", limit=limit) for s in batch]
+        fetched = await asyncio.gather(*tasks, return_exceptions=True)
+        for sym, data in zip(batch, fetched):
+            if isinstance(data, Exception):
+                logger.warning("Failed to fetch bars for %s: %s", sym, data)
+            elif data:
+                results[sym] = data
+        await asyncio.sleep(0.3)  # polite delay between batches
     return results
 
 
@@ -86,6 +80,8 @@ async def run_scan(
         provider = get_market_provider()
         all_bars = await _fetch_bars_batch(provider, universe, limit=config.bars_needed)
 
+        logger.info("Fetched bars for %d/%d symbols", len(all_bars), len(universe))
+
         candidates: list[ScanCandidate] = []
         tickers_scanned = 0
 
@@ -97,6 +93,7 @@ async def run_scan(
             tickers_scanned += 1
             ind = compute_indicators(bars)
             if ind is None:
+                logger.debug("Skipping %s — insufficient bars (%d)", symbol, len(bars))
                 continue
 
             result = apply_filters(ind, config)
@@ -106,6 +103,7 @@ async def run_scan(
 
             breakdown = score_candidate(ind, config)
             if breakdown.total < config.min_final_score:
+                logger.debug("Score too low %s: %.1f < %.1f", symbol, breakdown.total, config.min_final_score)
                 continue
 
             candidate = ScanCandidate(
@@ -119,8 +117,8 @@ async def run_scan(
                 regime_modifier=0.0,
                 confidence=breakdown.confidence,
                 entry=round(ind.close, 2),
-                stop=round(ind.close * 0.97, 2),     # 3% initial stop — scanner placeholder
-                target1=round(ind.close * 1.06, 2),  # 6% target — 2:1 R/R
+                stop=round(ind.close * 0.97, 2),
+                target1=round(ind.close * 1.06, 2),
                 rr_ratio=2.0,
                 direction="LONG",
                 strategy="swing_momentum",
@@ -153,7 +151,7 @@ async def run_scan(
             scan_run.id, tickers_scanned, len(candidates), scan_run.duration_ms,
         )
 
-        # Fire alert (non-blocking — failures don't fail the scan)
+        # Fire alert (non-blocking)
         if send_alert:
             from app.core.config import settings as _settings
             if _settings.alert_email_enabled and _settings.alert_email_to:
