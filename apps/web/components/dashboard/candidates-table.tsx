@@ -103,7 +103,7 @@ export function CandidatesTable({ candidates }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {candidates.slice(0, 10).map((c) => (
+          {candidates.map((c) => (
             <TableRow
               key={c.id}
               className="cursor-pointer"
