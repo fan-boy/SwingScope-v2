@@ -19,32 +19,60 @@ from app.services.scanner.scorer import score_candidate
 
 logger = logging.getLogger(__name__)
 
-# Default universe — S&P 500 top 150 by market cap
+# Full S&P 500 universe
 DEFAULT_UNIVERSE = [
-    # Mega-cap tech
+    # Mega-cap Tech
     "AAPL","MSFT","NVDA","AMZN","META","GOOGL","GOOG","TSLA","AVGO","ORCL",
     "ADBE","CRM","AMD","INTC","QCOM","TXN","AMAT","LRCX","KLAC","MRVL",
     "PANW","SNPS","CDNS","FTNT","ANSS","NFLX","UBER","ABNB","SHOP","SQ",
+    "NOW","WDAY","TEAM","ZS","DDOG","MDB","SNOW","PLTR","COIN","RBLX",
+    "NET","CRWD","OKTA","ZM","DOCU","TWLO","BILL","HUBS","VEEV","GTLB",
     # Financials
     "JPM","BAC","WFC","GS","MS","BLK","AXP","V","MA","COF",
-    "SCHW","USB","PNC","TFC","FITB","C","BK","STT","SIVB","DFS",
+    "SCHW","USB","PNC","TFC","FITB","C","BK","STT","DFS","RF",
+    "HBAN","KEY","CFG","MTB","ZION","WBS","FHN","EWBC","PACW","WAL",
+    "ICE","CME","SPGI","MCO","MSCI","FDS","BR","NTRS","IVZ","BEN",
+    "MET","PRU","AFL","ALL","PGR","TRV","CB","AIG","HIG","LNC",
     # Healthcare
     "JNJ","UNH","LLY","ABBV","MRK","PFE","TMO","ABT","DHR","BMY",
     "AMGN","GILD","REGN","VRTX","ISRG","HCA","CI","CVS","ELV","HUM",
-    # Consumer
-    "AMZN","WMT","COST","TGT","HD","LOW","MCD","SBUX","NKE","CMG",
-    "YUM","DG","DLTR","BKNG","MAR","HLT","ABNB","LVS","MGM","WYNN",
+    "CNC","MOH","IQVIA","IQV","DGX","LH","BIO","HOLX","PODD","DXCM",
+    "IDXX","MTD","WAT","A","ZBH","STE","BAX","BDX","BSX","EW",
+    "MRNA","BNTX","BIIB","ALNY","INCY","EXAS","NTRA","NVAX","RARE","SRPT",
+    # Consumer Discretionary
+    "WMT","COST","TGT","HD","LOW","MCD","SBUX","NKE","CMG","YUM",
+    "DG","DLTR","BKNG","MAR","HLT","LVS","MGM","WYNN","CZR","RCL",
+    "CCL","NCLH","F","GM","RIVN","LCID","TM","HMC","RACE","MBLY",
+    "ORLY","AZO","AAP","GPC","LKQ","AN","KMX","PAG","ABG","LAD",
+    "AMZN","ETSY","EBAY","W","CHWY","CPRT","CVNA","VRM","KAR","IAA",
+    # Consumer Staples
+    "PG","KO","PEP","PM","MO","MDLZ","GIS","K","SJM","CAG",
+    "CPB","HRL","MKC","CHD","CLX","CL","ENR","SPB","COTY","ELF",
+    "WBA","RAD","WDFC","CENT","JJSF","LANC","CALM","SAFM","TSN","HRL",
     # Energy
     "XOM","CVX","COP","EOG","SLB","MPC","PSX","VLO","OXY","PXD",
-    # Industrials
+    "DVN","FANG","MRO","APA","HAL","BKR","NOV","CTRA","SM","CPE",
+    "WMB","KMI","OKE","EPD","ET","MPLX","PAA","TRGP","DT","LNG",
+    # Industrials & Defense
     "GE","HON","CAT","DE","UNP","CSX","NSC","RTX","LMT","NOC",
     "BA","UPS","FDX","EMR","ETN","PH","ROK","GD","TDG","AXON",
-    # Communication
-    "GOOGL","META","NFLX","DIS","CHTR","T","VZ","TMUS","FOXA","EA",
-    # Materials & Utilities
-    "LIN","APD","ECL","NEM","FCX","NUE","VMC","MLM","AWK","NEE",
-    # REITs & misc
+    "MMM","ITW","DOV","XYL","CARR","OTIS","IR","TT","JCI","ALLE",
+    "FAST","GWW","MSC","WSO","AIT","GATX","R","AL","WAB","TRN",
+    "WM","RSG","CLH","CWST","US","JBHT","CHRW","ECHO","HUBG","XPO",
+    # Communication & Media
+    "DIS","CHTR","T","VZ","TMUS","FOXA","FOX","EA","TTWO","ATVI",
+    "WBD","PARA","NWSA","IPG","OMC","PUB","MGNI","TTD","APPS","IS",
+    # Materials
+    "LIN","APD","ECL","NEM","FCX","NUE","VMC","MLM","PKG","IP",
+    "CF","MOS","FMC","ALB","SQM","LTHM","ALTM","MP","LAC","PLL",
+    "AA","CENX","HCC","ARCH","BTU","CEIX","SXC","AM","MPLX","TCP",
+    # Utilities
+    "NEE","DUK","SO","D","AEP","EXC","SRE","XEL","PEG","ED",
+    "AWK","WEC","CMS","DTE","NI","OGE","POR","SWX","IDA","OTTR",
+    # REITs
     "PLD","AMT","CCI","EQIX","PSA","O","SPG","WELL","AVB","EQR",
+    "MAA","UDR","CPT","AIV","BRT","NHI","PEAK","VTR","SBAC","SBA",
+    "GLPI","VICI","MGP","COLD","STAG","FR","EGP","TRNO","LPT","HIW",
 ]
 
 

@@ -36,7 +36,7 @@ class ScannerConfig(BaseModel):
 
     # ── Output filters ─────────────────────────────────────────────
     min_final_score: float = Field(20.0, description="Minimum score to include in results")
-    max_candidates: int = Field(50, description="Maximum candidates to return")
+    max_candidates: int = Field(100, description="Maximum candidates to return")
 
     class Config:
         frozen = True
