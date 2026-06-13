@@ -51,7 +51,7 @@ class AlpacaAdapter(MarketDataProvider):
             "timeframe": tf,
             "limit": limit,
             "adjustment": "split",
-            "feed": "iex",
+            "feed": "sip",
             "start": (start or default_start).isoformat(),
         }
         if end:
@@ -97,7 +97,7 @@ class AlpacaAdapter(MarketDataProvider):
             "timeframe": _TIMEFRAME_MAP.get(timeframe, "1Day"),
             "limit": limit,
             "adjustment": "split",
-            "feed": "iex",
+            "feed": "sip",
             "start": default_start.isoformat(),
         }
         try:
